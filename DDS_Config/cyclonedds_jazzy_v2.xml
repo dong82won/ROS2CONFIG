@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+    <Domain id="any">
+        <General>
+            <!-- 로컬 호스트 및 외부 웹 브릿지 통신을 위한 자동 네트워크 인터페이스 바인딩 -->
+            <NetworkInterfaceAddress>auto</NetworkInterfaceAddress>
+            <AllowMulticast>true</AllowMulticast>
+        </General>
+        
+        <Internal>
+            <!-- 네트워크 통신용 고성능 UDPv4: OS 커널의 net.core.rmem_default (16MB)와 동기화 -->
+            <SocketReceiveBufferSize>16MB</SocketReceiveBufferSize>
+            <SocketSendBufferSize>16MB</SocketSendBufferSize>
+            
+            <!-- 최대 메시지 크기 처리 및 논블로킹 완충 워터마크 튜닝 -->
+            <Watermarks>
+                <Wholesome>512kB</Wholesome>
+            </Watermarks>
+        </Internal>
+        
+        <SharedMemory>
+            <!-- 대용량 로컬 데이터 프로세싱을 위한 Shared Memory (Zero-Copy 지원) 활성화 -->
+            <Enable>true</Enable>
+            <!-- 불필요한 SHM 디버그 로그 방지 -->
+            <LogLevel>warn</LogLevel>
+        </SharedMemory>
+    </Domain>
+</CycloneDDS>

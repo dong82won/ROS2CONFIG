@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastrtps_profiles">
+    <profiles>
+        <!-- 1. 고성능 전송 레이어 기술 정의 (SHM & UDPv4) -->
+        <transport_descriptors>
+            <!-- 대용량 로컬 데이터 프로세싱을 위한 Shared Memory (Zero-Copy 지원) -->
+            <transport_descriptor>
+                <transport_id>shm_transport</transport_id>
+                <type>SHM</type>
+                <maxMessageSize>524288</maxMessageSize> <!-- 512KB Chunk 단위 -->
+            </transport_descriptor>
+
+            <!-- 네트워크 통신용 고성능 UDPv4 (Sysctl 버퍼 최적화 반영) -->
+            <transport_descriptor>
+                <transport_id>udp_transport</transport_id>
+                <type>UDPv4</type>
+                <!-- OS 커널의 net.core.rmem_default & wmem_default (16MB)와 동기화 -->
+                <sendBufferSize>16777216</sendBufferSize>
+                <receiveBufferSize>16777216</receiveBufferSize>
+                <maxMessageSize>65500</maxMessageSize>
+                <non_blocking_send>true</non_blocking_send>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <!-- 2. 기본 참여자(Participant) 프로파일 (모든 ROS 2 노드에 기본 적용) -->
+        <participant profile_name="fastdds_optimized_profile" is_default_profile="true">
+            <rtps>
+                <!-- 바인딩할 전송 모드 지정 (SHM 우선 처리 후 UDP 사용) -->
+                <userTransports>
+                    <transport_id>shm_transport</transport_id>
+                    <transport_id>udp_transport</transport_id>
+                </userTransports>
+                <useBuiltinTransports>false</useBuiltinTransports>
+
+                <!-- 초기 검색 가속화 및 디스커버리 튜닝 -->
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SIMPLE</discoveryProtocol>
+                        <initialAnnouncements>
+                            <count>5</count>
+                            <period>
+                                <sec>0</sec>
+                                <nanosec>100000000</nanosec> <!-- 초기 100ms 간격 빠른 동기화 -->
+                            </period>
+                        </initialAnnouncements>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>

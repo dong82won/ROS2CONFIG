@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config">
+    <Domain id="any">
+        <General>
+        
+            <Interfaces>
+                <NetworkInterface autodetermine="false" name="enp12s0" multicast="true"/>
+            </Interfaces>
+            
+            <AllowMulticast>true</AllowMulticast>
+            <EnableMulticastLoopback>true</EnableMulticastLoopback>
+
+            <MaxMessageSize>65500B</MaxMessageSize>
+            <FragmentSize>1344B</FragmentSize>
+        </General>
+
+        <Discovery>
+            <ParticipantIndex>auto</ParticipantIndex>
+            <MaxAutoParticipantIndex>100</MaxAutoParticipantIndex>
+        </Discovery>
+
+        <Internal>
+            <SocketReceiveBufferSize max="2147483647B" min="128MB"/>
+            <MaxSampleSize>2147483647B</MaxSampleSize>
+        </Internal>
+
+        <SharedMemory>
+            <Enable>false</Enable>
+        </SharedMemory>
+
+        <Tracing>
+            <Verbosity>info</Verbosity>
+            <OutputFile>/home/won/cyclone_dds_tuning/cdds_performance.log.${ProcessId}</OutputFile>
+        </Tracing>
+    </Domain>
+</CycloneDDS>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+    <Domain id="any">
+        <General>
+            <!-- 로컬 호스트 및 외부 웹 브릿지 통신을 위한 자동 네트워크 인터페이스 바인딩 -->
+            <NetworkInterfaceAddress>auto</NetworkInterfaceAddress>
+            <AllowMulticast>true</AllowMulticast>
+        </General>
+        
+        <Internal>
+	    <!-- [수정] 커널 최적화 파라미터(net.core.rmem_max=256MB) 한계치까지 확장 -->
+            <SocketReceiveBufferSize>256MB</SocketReceiveBufferSize>
+            <SocketSendBufferSize>64MB</SocketSendBufferSize>
+            
+            <!-- 최대 메시지 크기 처리 및 논블로킹 완충 워터마크 튜닝 (대용량 센서 데이터 대응) -->
+            <Watermarks>
+                <Wholesome>10MB</Wholesome>
+            </Watermarks>
+        </Internal>
+
+        <!-- 초기 노드 탐색(Discovery) 가속화 및 로컬 피어 고정 -->
+        <Discovery>
+            <ParticipantIndex>auto</ParticipantIndex>
+            <MaxAutoParticipantIndex>120</MaxAutoParticipantIndex>
+            <!-- 비정상 종료된 유령 노드(Ghost Node)를 3초 내로 자동 해제 -->
+            <ParticipantLeaseDuration>3s</ParticipantLeaseDuration>
+            <Peers>
+                <!-- 로컬 PC 내부 노드 간 즉각 탐색을 위한 루프백 바인딩 -->
+                <Peer Address="localhost"/>
+            </Peers>
+        </Discovery>
+        
+        <SharedMemory>
+            <!-- 대용량 로컬 데이터 프로세싱을 위한 Shared Memory (Zero-Copy 지원) 활성화 -->
+            <Enable>true</Enable>
+            <!-- 불필요한 SHM 디버그 로그 방지 -->
+            <LogLevel>warn</LogLevel>
+        </SharedMemory>
+    </Domain>
+</CycloneDDS>
