@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+            xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+    <Domain id="any">
+        <General>
+            <Interfaces>
+                <!-- D555 직결 유선 NIC 단독 바인딩 (wlan0 외란 원천 격리) -->
+                <NetworkInterface name="enx00e04c6841ec" priority="default" multicast="default" />
+            </Interfaces>
+            <AllowMulticast>true</AllowMulticast>
+            <EnableMulticastLoopback>true</EnableMulticastLoopback>
+            <MaxMessageSize>65500B</MaxMessageSize>
+            <FragmentSize>8000B</FragmentSize>
+        </General>
+
+        <!-- D555 SafeDDS(Vendor 1.48) 비표준 패킷 완화 모드 -->
+        <Compatibility>
+            <StandardsConformance>lax</StandardsConformance>
+        </Compatibility>
+
+        <!-- 비치명적 RTPS 파싱 경고 로그 스팸 억제 (none 레벨로 완전 음소거) -->
+        <Tracing>
+            <Verbosity>none</Verbosity>
+            <OutputFile>/dev/null</OutputFile>
+        </Tracing>
+        
+        <Internal>
+            <SocketReceiveBufferSize min="256MB" />
+            <SocketSendBufferSize min="64MB" />
+            <Watermarks>
+                <WhcHigh>20MB</WhcHigh>
+                <WhcAdaptive>true</WhcAdaptive>
+            </Watermarks>
+            <DeliveryQueueMaxSamples>8192</DeliveryQueueMaxSamples>
+        </Internal>
+
+        <Discovery>
+            <ParticipantIndex>auto</ParticipantIndex>
+            <MaxAutoParticipantIndex>120</MaxAutoParticipantIndex>
+            <LeaseDuration>3000ms</LeaseDuration>
+            <Peers>
+                <Peer Address="127.0.0.1" />
+                <Peer Address="192.168.11.55" />
+            </Peers>
+        </Discovery>
+        
+        <SharedMemory>
+            <Enable>false</Enable>
+        </SharedMemory>
+    </Domain>
+</CycloneDDS>

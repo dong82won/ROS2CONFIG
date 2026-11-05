@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+    <Domain id="any">
+        <General>
+            <!-- 최신 CycloneDDS 인터페이스 바인딩 (deprecated 경고 제거) -->
+            <Interfaces>
+                <!-- <NetworkInterface name="auto" priority="default" multicast="default"/> -->
+
+                <!-- <NetworkInterface name="lo" priority="default" multicast="default"/> -->
+
+                <!-- <NetworkInterface name="enx00e04c6841ec" priority="1" multicast="default"/> -->
+                <NetworkInterface name="wlan0" priority="2" multicast="default"/>
+
+            </Interfaces>
+
+            <AllowMulticast>true</AllowMulticast>
+            <MaxMessageSize>65500B</MaxMessageSize>
+        </General>
+
+        <Internal>
+            <!-- [수정] 텍스트가 아닌 'min' 속성(Attribute)으로 지정해야 no data expected 에러가 방지됨 -->
+            <SocketReceiveBufferSize min="256MB"/>
+            <SocketSendBufferSize min="64MB"/>
+
+            <!-- 대용량 센서(LiDAR/Image) 수신 큐 크기 확장 -->
+            <DeliveryQueueMaxSamples>4096</DeliveryQueueMaxSamples>
+        </Internal>
+
+        <!-- 초기 노드 탐색(Discovery) 최적화 -->
+        <Discovery>
+            <ParticipantIndex>auto</ParticipantIndex>
+            <MaxAutoParticipantIndex>120</MaxAutoParticipantIndex>
+            <!-- [수정] 올바른 공식 태그명: LeaseDuration -->
+            <LeaseDuration>3s</LeaseDuration>
+            <Peers>
+                <!-- 로컬 IPC 즉시 검색 루프백 바인딩 -->
+                <Peer Address="localhost"/>
+            </Peers>
+        </Discovery>
+
+        <SharedMemory>
+            <!-- Iceoryx 기반 Zero-Copy SHM 활성화 (불필요한 FastDDS 전용 태그 제거) -->
+            <Enable>false</Enable>
+            <LogLevel>warn</LogLevel>
+        </SharedMemory>
+
+        <Tracing>
+            <Category>error</Category>
+        </Tracing>
+    </Domain>
+</CycloneDDS>

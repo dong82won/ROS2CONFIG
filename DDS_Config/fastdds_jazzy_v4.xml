@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <profiles>
+        <!-- 
+            [FastDDS One-Pass 파서 규격]
+            transport_descriptors를 participant보다 반드시 상단에 선언
+        -->
+        <transport_descriptors>
+            <transport_descriptor>
+                <transport_id>CustomUdpTransport</transport_id>
+                <type>UDPv4</type>
+                <sendBufferSize>67108864</sendBufferSize>
+                <receiveBufferSize>268435456</receiveBufferSize>
+                <interfaceWhiteList>
+                    <!-- D555 직결 유선 NIC IP만 허용 (wlan0 완전 격리) -->
+                    <address>192.168.11.70</address>
+                </interfaceWhiteList>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <!-- Participant Profile 정의 -->
+        <participant profile_name="d555_unicast_participant" is_default_profile="true">
+            <rtps>
+                <name>ros2_jazzy_d555_host</name>
+                
+                <userTransports>
+                    <transport_id>CustomUdpTransport</transport_id>
+                </userTransports>
+                <useBuiltinTransports>false</useBuiltinTransports>
+
+                <builtin>
+                    <!-- 1. 탐색 프로토콜 설정 (discoverySettingsType) -->
+                    <discovery_config>
+                        <discoveryProtocol>SIMPLE</discoveryProtocol>
+                        <ignoreParticipantFlags>FILTER_DIFFERENT_HOST</ignoreParticipantFlags>
+                        <EDP>SIMPLE</EDP>
+                        <!-- Liveliness 유효 임대 시간 1시간 (5초 타임아웃 차단) -->
+                        <leaseDuration>
+                            <sec>3600</sec>
+                        </leaseDuration>
+                        <leaseAnnouncement>
+                            <sec>1</sec>
+                        </leaseAnnouncement>
+                    </discovery_config>
+
+                    <!-- 
+                        [교정 완료] 
+                        initialPeersList는 discovery_config 외부, builtin 바로 하위에 선언해야 함
+                    -->
+                    <initialPeersList>
+                        <locator>
+                            <udpv4>
+                                <address>127.0.0.1</address>
+                            </udpv4>
+                        </locator>
+                        <locator>
+                            <udpv4>
+                                <address>192.168.11.55</address>
+                            </udpv4>
+                        </locator>
+                    </initialPeersList>
+                </builtin>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>

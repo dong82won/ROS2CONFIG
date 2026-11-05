@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastrtps_profiles">
+    <profiles>
+        <!-- 1. 고성능 전송 레이어 기술 정의 (SHM & UDPv4) -->
+        <transport_descriptors>
+            <!-- 대용량 로컬 데이터 프로세싱을 위한 Shared Memory (Zero-Copy 지원) -->
+            <transport_descriptor>
+                <transport_id>shm_transport</transport_id>
+                <type>SHM</type>
+                <!-- 4K 카메라 / 3D LiDAR Zero-Copy 유지를 위한 단일 메시지 한도 (10MB) -->
+                <maxMessageSize>10485760</maxMessageSize>
+                <!-- [최적화] maxMessageSize보다 큰 공유 메모리 세그먼트 풀 할당 (64MB) -->
+                <segment_size>67108864</segment_size>
+                <!-- 다중 고용량 토픽 동시 수신을 위한 세그먼트 파티션 개수 확장 -->
+                <max_partitions>32</max_partitions>
+                <!-- 비정상 종료된 프로세스의 좀비 SHM 세그먼트 자동 청소 타임아웃 (ms) -->
+                <healthy_check_timeout_ms>1000</healthy_check_timeout_ms>
+            </transport_descriptor>
+
+            <!-- 네트워크 통신용 고성능 UDPv4 (Sysctl 버퍼 최적화 반영) -->
+            <transport_descriptor>
+                <transport_id>udp_transport</transport_id>
+                <type>UDPv4</type>
+                <!-- OS 커널의 net.core.rmem_default & wmem_default (16MB) 동기화 -->
+                <sendBufferSize>16777216</sendBufferSize>
+                <receiveBufferSize>16777216</receiveBufferSize>
+                <maxMessageSize>65500</maxMessageSize>
+                <non_blocking_send>true</non_blocking_send>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <!-- 2. 기본 참여자(Participant) 프로파일 (모든 ROS 2 노드에 기본 적용) -->
+        <participant profile_name="fastdds_optimized_profile" is_default_profile="true">
+            <rtps>
+                <!-- 전송 우선순위: SHM(로컬 Zero-Copy) -> 실패 시 UDPv4 사용 -->
+                <userTransports>
+                    <transport_id>shm_transport</transport_id>
+                    <transport_id>udp_transport</transport_id>
+                </userTransports>
+                <useBuiltinTransports>false</useBuiltinTransports>
+
+                <!-- 초기 검색 가속화 및 디스커버리 튜닝 -->
+                <builtin>
+                    <discovery_config>
+                        <discoveryProtocol>SIMPLE</discoveryProtocol>
+                        <!-- 유령 노드 판정 타임아웃: 3초 -->
+                        <leaseDuration>
+                            <sec>3</sec>
+                        </leaseDuration>
+                        <!-- [최적화] 생존 공지 주기: 1초 (패킷 유실 시 잘못된 오프라인 판정 방지) -->
+                        <leaseAnnouncement>
+                            <sec>1</sec>
+                        </leaseAnnouncement>
+                        <!-- 초기 노드 등록 즉시 동기화 가속 (100ms 간격 5회 브로드캐스트) -->
+                        <initialAnnouncements>
+                            <count>5</count>
+                            <period>
+                                <sec>0</sec>
+                                <nanosec>100000000</nanosec>
+                            </period>
+                        </initialAnnouncements>
+                    </discovery_config>
+                </builtin>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>
