@@ -2,15 +2,13 @@
 <CycloneDDS xmlns="https://cdds.io/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
     <Domain id="any">
         <General>
-            <!-- 최신 CycloneDDS 인터페이스 바인딩 (deprecated 경고 제거) -->
             <Interfaces>
-                <!-- <NetworkInterface name="auto" priority="default" multicast="default"/> -->
-
-                <!-- <NetworkInterface name="lo" priority="default" multicast="default"/> -->
-
-                <!-- <NetworkInterface name="enx00e04c6841ec" priority="1" multicast="default"/> -->
-                <NetworkInterface name="wlan0" priority="2" multicast="default"/>
-
+                <!-- 1순위: 유선 이더넷 (커널 튜닝 효과 극대화, 장치 연결 시 최우선 선택) -->
+                <NetworkInterface name="enx8cb0e9e7ed99" priority="20" multicast="default" presence_required="false"/>
+                <!-- 2순위: 무선 Wi-Fi (유선 단선 시 백업 전환) -->
+                <NetworkInterface name="wlan0" priority="10" multicast="default" presence_required="false"/>
+                <!-- 3순위: 로컬 루프백 (외부 네트워크 완전 부재 시 오프라인 통신 보장) -->
+                <NetworkInterface name="lo" priority="1" multicast="default" presence_required="false"/>
             </Interfaces>
 
             <AllowMulticast>true</AllowMulticast>
@@ -18,28 +16,23 @@
         </General>
 
         <Internal>
-            <!-- [수정] 텍스트가 아닌 'min' 속성(Attribute)으로 지정해야 no data expected 에러가 방지됨 -->
+            <!-- 호스트 net.core.rmem_max (256MB)와 100% 매칭 -->
             <SocketReceiveBufferSize min="256MB"/>
-            <SocketSendBufferSize min="64MB"/>
-
-            <!-- 대용량 센서(LiDAR/Image) 수신 큐 크기 확장 -->
+            <!-- 호스트 net.core.wmem_max에 맞춰 송신 버퍼도 상향 (LiDAR/카메라 퍼블리셔 보호) -->
+            <SocketSendBufferSize min="128MB"/>
             <DeliveryQueueMaxSamples>4096</DeliveryQueueMaxSamples>
         </Internal>
 
-        <!-- 초기 노드 탐색(Discovery) 최적화 -->
         <Discovery>
             <ParticipantIndex>auto</ParticipantIndex>
             <MaxAutoParticipantIndex>120</MaxAutoParticipantIndex>
-            <!-- [수정] 올바른 공식 태그명: LeaseDuration -->
-            <LeaseDuration>3s</LeaseDuration>
-            <Peers>
-                <!-- 로컬 IPC 즉시 검색 루프백 바인딩 -->
-                <Peer Address="localhost"/>
-            </Peers>
+            <!-- wlan0 폴백 시 Wi-Fi 패킷 지연/손실로 인한 노드 깜빡임 방지 (3s -> 8s 완화) -->
+            <LeaseDuration>8s</LeaseDuration>
         </Discovery>
 
         <SharedMemory>
-            <!-- Iceoryx 기반 Zero-Copy SHM 활성화 (불필요한 FastDDS 전용 태그 제거) -->
+            <!-- 커널 fs.mqueue / vm.max_map_count 튜닝 활용:
+                 Iceoryx RouDi 데몬 실행 환경이면 true, 아니면 false 유지 -->
             <Enable>false</Enable>
             <LogLevel>warn</LogLevel>
         </SharedMemory>

@@ -1,1 +1,2 @@
-1793861738.019572 [0]     talker: enx00e04c6841ec: does not match an available interface.
+1794293190.435335 [0]     talker: enx8cb0e9e7ed99: optional interface was not found.
+1794293190.435365 [0]     talker: selected interface "lo" is not multicast-capable: disabling multicast

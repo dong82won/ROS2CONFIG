@@ -42,14 +42,17 @@ export GZ_RENDERING_ENGINE_GUIS=ogre2
 export LIBGL_DRI3_DISABLE=1
 
 # ==============================================================================
-# 4. Intel RealSense SDK C++ 공유 라이브러리 & Python 바인딩
+# 4. Intel RealSense SDK C++ 공유 라이브러리 & Qt GUI 환경
 # ==============================================================================
 # CUDA 가속 빌드된 librealsense2.so C++ 공유 라이브러리 경로
 [[ -d "/usr/local/lib" ]] && export LD_LIBRARY_PATH="/usr/local/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
-# pyrealsense2 공용 사이트 패키지 경로 (3rdparty 가상환경 전역 바인딩)
-REALSENSE_PYTHON_DIR="/home/won/PNS/100_Development/150_3rdparty/.venv/lib/python3.12/site-packages"
-[[ -d "$REALSENSE_PYTHON_DIR" ]] && export PYTHONPATH="$REALSENSE_PYTHON_DIR${PYTHONPATH:+:${PYTHONPATH}}"
+# # [보완] pyrealsense2 전역 오염 방지: $HOME 동적 경로 사용 및 필요한 경우 활성화
+# REALSENSE_PYTHON_DIR="$HOME/PNS/100_Development/150_3rdparty/.venv/lib/python3.12/site-packages"
+# if [[ -d "$REALSENSE_PYTHON_DIR" ]]; then
+#     # 필요 시 단축어(alias)나 가상환경 활성화를 권장하며, 기본 로드가 필요하다면 하단 유지
+#     export PYTHONPATH="$REALSENSE_PYTHON_DIR${PYTHONPATH:+:${PYTHONPATH}}"
+# fi
 
 # OpenCV & Qt GUI 백엔드 최적화 및 폰트/QML 로그 차단 통합 (Ubuntu 24.04 GUI 경고 방지)
 export QT_QPA_PLATFORM=xcb
@@ -88,7 +91,8 @@ export LANGUAGE=en_US:en
 # ==============================================================================
 zstyle ':completion:*' list-colors "${(@s.:.)LS_COLORS}"
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh/.zcompcache"
+# [수정] XDG_CACHE_HOME 미지정 시 폴백 보장
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zcompcache"
 
 HISTFILE=~/.zsh_history
 HISTSIZE=50000
@@ -104,7 +108,7 @@ setopt SHARE_HISTORY
 alias code='__NV_PRIME_RENDER_OFFLOAD=0 code'
 
 # Shell & Configuration Helpers
-alias sz="source ~/.zshrc; echo '✅ .zshrc 가 성공적으로 재로드되었습니다!'"
+alias sz="source ~/.zshrc; echo '✅ .zshrc has been successfully reloaded!'"
 alias sgz='gedit ~/.zshrc &'
 alias io='io.elementary.files . >/dev/null 2>&1 &'
 alias blender4.5='~/.local/share/blender/blender > /dev/null 2>&1 &|'
@@ -117,8 +121,8 @@ if command -v eza &> /dev/null; then
     alias tree='eza --tree --icons=auto'
 fi
 
-# RealSense 실행 단축키
-alias rs-viewer='sudo realsense-viewer'
+# [수정] RealSense 실행 단축키 (sudo 없이 안전하게 실행)
+alias rs-viewer='realsense-viewer'
 alias rs-calib='Intel.Realsense.DynamicCalibrator'
 
 # Python & UV Development Helpers
@@ -135,7 +139,6 @@ alias gl='git log --oneline --graph --decorate'
 # 8. 외부 프로그램 및 스크립트 로드
 # ==============================================================================
 # ROS 2 & DDS 통합 환경 즉시 자동 Sourcing (P10k 프롬프트 경고 방지 Silent Mode)
-# [수정] 스크립트 파일명을 범용적인 ros2_jazzy.sh로 변경
 ROS_SETUP_SCRIPT="$HOME/ROS2CONFIG/ROS2SH/ros2_jazzy.sh"
 if [[ -f "$ROS_SETUP_SCRIPT" ]]; then
     source "$ROS_SETUP_SCRIPT" > /dev/null 2>&1
