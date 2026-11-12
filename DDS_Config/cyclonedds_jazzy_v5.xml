@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <CycloneDDS xmlns="https://cdds.io/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
-    <Domain id="any">
+
+    <Domain Id="any">
         <General>
             <Interfaces>
                 <!-- 1순위: 유선 이더넷 (커널 튜닝 효과 극대화, 장치 연결 시 최우선 선택) -->
-                <NetworkInterface name="enx8cb0e9e7ed99" priority="20" multicast="default" presence_required="false"/>
+                <NetworkInterface name="enx00e04c6841ec" priority="20" multicast="default" presence_required="false"/>
                 <!-- 2순위: 무선 Wi-Fi (유선 단선 시 백업 전환) -->
                 <NetworkInterface name="wlan0" priority="10" multicast="default" presence_required="false"/>
                 <!-- 3순위: 로컬 루프백 (외부 네트워크 완전 부재 시 오프라인 통신 보장) -->
-                <NetworkInterface name="lo" priority="1" multicast="default" presence_required="false"/>
+                <!-- <NetworkInterface name="lo" priority="1" multicast="false" presence_required="false"/> -->
             </Interfaces>
-
             <AllowMulticast>true</AllowMulticast>
             <MaxMessageSize>65500B</MaxMessageSize>
         </General>
@@ -30,12 +30,8 @@
             <LeaseDuration>8s</LeaseDuration>
         </Discovery>
 
-        <SharedMemory>
-            <!-- 커널 fs.mqueue / vm.max_map_count 튜닝 활용:
-                 Iceoryx RouDi 데몬 실행 환경이면 true, 아니면 false 유지 -->
-            <Enable>false</Enable>
-            <LogLevel>warn</LogLevel>
-        </SharedMemory>
+        <!-- 커널 fs.mqueue / vm.max_map_count 튜닝 활용 (최신 스키마 규칙에 맞춰 빈 태그 유지) -->
+        <SharedMemory/>
 
         <Tracing>
             <Category>error</Category>

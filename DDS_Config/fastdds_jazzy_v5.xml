@@ -29,10 +29,9 @@
                     - 비워둘 경우 OS 기본 라우팅 테이블(Default Gateway)을 따라 유선/무선이 자동 적용됩니다.
                 -->
                 <interfaceWhiteList>
-                    <!-- <interface>enx8cb0e9e7ed99</interface> -->
-                    <!-- <interface>wlan0</interface> -->
-                    <interface>lo</interface>
-                    <address>127.0.0.1</address>
+                    <address>enx00e04c6841ec</address>
+                    <address>wlan0</address>
+                    <address>lo</address>
                 </interfaceWhiteList>
 
             </transport_descriptor>
